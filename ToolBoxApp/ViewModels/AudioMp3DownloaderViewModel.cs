@@ -26,6 +26,7 @@ namespace ToolBoxApp.ViewModels
         private string _errorMessage;
         private int _progressBarValue;
         private ICommand _downloadYoutubeMp3;
+        private bool _isDownloadButtonEnabled;
 
 
         public string YoutubeUrl
@@ -64,6 +65,18 @@ namespace ToolBoxApp.ViewModels
                 OnPropertyChanged("ProgressBarValue");
             }
         }
+        public bool IsDownloadButtonEnabled
+        {
+            get
+            {
+                return _isDownloadButtonEnabled;
+            }
+            set
+            {
+                _isDownloadButtonEnabled = value;
+                OnPropertyChanged("IsDownloadButtonEnabled");
+            }
+        }
         public ICommand DownloadYoutubeMp3
         {
             get 
@@ -78,6 +91,7 @@ namespace ToolBoxApp.ViewModels
         public AudioMp3DownloaderViewModel(NavigationService navigationService)
         {
             this.navigationService = navigationService;
+            IsDownloadButtonEnabled = true;
         }
 
 
@@ -86,9 +100,11 @@ namespace ToolBoxApp.ViewModels
 
             if (!string.IsNullOrEmpty(YoutubeUrl) && YoutubeUrl.Contains("youtube") && YoutubeUrl.Contains("https://www.youtube".ToLower()))
             {
+
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     ErrorMessage = "";
+                    IsDownloadButtonEnabled = false;
                 });
 
 
@@ -110,23 +126,12 @@ namespace ToolBoxApp.ViewModels
 
                 await videoFile.DeleteAsync();
 
-                if (storageFolder.Path == KnownFolders.MusicLibrary.Path)
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = "File has been saved in your standard music folder";
-                        ProgressBarValue = 0;
-                    });
-                }
-                else
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = $"File has been saved under {storageFolder.Path}";
-                        ProgressBarValue = 0;
-                    });
-                }
-
+                    ErrorMessage = "File has been saved in your standard music folder";
+                    ProgressBarValue = 0;
+                    IsDownloadButtonEnabled = true;
+                });
                 //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
             }

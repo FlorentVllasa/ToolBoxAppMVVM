@@ -32,13 +32,8 @@
         <Button Content="Download"
                 Margin="0,300,0,0"
                 HorizontalAlignment="Center"
-                Command="{Binding DownloadYoutubeMp3}"/>
-
-        <Button Content="Set Download Location"
-                Margin="0,450,0,0"
-                HorizontalAlignment="Center"
-                Command="{Binding SetDownloadLocationCommand}"
-                Visibility="Collapsed"/>
+                Command="{Binding DownloadYoutubeMp3}"
+                IsEnabled="{Binding IsDownloadButtonEnabled, Mode=TwoWay}"/>
 
         <ProgressBar x:Name="progessBar"
                      Value="{Binding ProgressBarValue, Mode=TwoWay}" 
