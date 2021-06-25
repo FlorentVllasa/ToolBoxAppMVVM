@@ -90,7 +90,10 @@ namespace ToolBoxApp.ViewModels
             }
         }
 
-        
+        public StorageFile VideoFile;
+        public StorageFile Mp3File;
+        public StorageFolder SaveFolder;
+        public YouTubeVideo DownloadedVideo;
 
         public AudioMp3DownloaderViewModel(NavigationService navigationService)
         {
@@ -108,20 +111,21 @@ namespace ToolBoxApp.ViewModels
                 {
                     ErrorMessage = "";
                     IsDownloadButtonEnabled = false;
-                    Debug.WriteLine(Task.CurrentId);
                 });
 
                 try
                 {
-                    StorageFolder storageFolder = KnownFolders.MusicLibrary;
-                    string savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-
                     var video = await GetVideoObject();
+
+                    StorageFolder SaveFolder = KnownFolders.MusicLibrary;
+
+                    string savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
                     string videoPath = Path.Combine(savePath, video.FullName);
                     string mp3Path = Path.Combine(savePath, videoPath.Replace(".mp4", ".mp3"));
 
-                    StorageFile videoFile = await storageFolder.CreateFileAsync(Path.GetFileName(videoPath), CreationCollisionOption.ReplaceExisting);
-                    StorageFile mp3File = await storageFolder.CreateFileAsync(Path.GetFileName(mp3Path), CreationCollisionOption.ReplaceExisting);
+                    StorageFile videoFile = await SaveFolder.CreateFileAsync(Path.GetFileName(videoPath), CreationCollisionOption.ReplaceExisting);
+                    StorageFile mp3File = await SaveFolder.CreateFileAsync(Path.GetFileName(mp3Path), CreationCollisionOption.ReplaceExisting);
+
 
                     await Task.Run(() => WriteBytesIntoVideoFile(videoFile, video));
                     await ConvertMp4ToMp3(videoFile, mp3File);
@@ -134,13 +138,11 @@ namespace ToolBoxApp.ViewModels
                         ErrorMessage = "File has been saved in your standard music folder";
                         ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
-                        Debug.WriteLine(Task.CurrentId);
                     });
-                    Debug.WriteLine(Task.CurrentId);
                     //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
                 }
-                catch (UnavailableStreamException use) 
+                catch (UnavailableStreamException) 
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
@@ -148,13 +150,22 @@ namespace ToolBoxApp.ViewModels
                         IsDownloadButtonEnabled = true;
                     });
                 }
-                catch(HttpRequestException hre)
+                catch (HttpRequestException)
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "There seems to be an internet connection problem. Try again";
                         IsDownloadButtonEnabled = true;
                     });
+                }
+                catch (FileLoadException)
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ErrorMessage = "File cannot be accessed. Mp3 will be deleted. Try again!";
+                        IsDownloadButtonEnabled = true;
+                    });
+                    //await DeleteBrokenFiles(VideoFile, Mp3File);
                 }
             }
             else
@@ -165,6 +176,15 @@ namespace ToolBoxApp.ViewModels
                     ErrorMessage = "Please insert a valid youtube link!";
                 });
             }
+        }
+
+        public async Task DeleteBrokenFiles(StorageFile videoFile, StorageFile mp3File)
+        {
+            StorageFolder saveFolder = SaveFolder;
+            StorageFile toDeleteVideo = await saveFolder.GetFileAsync(Path.GetFileName(videoFile.Path));
+            StorageFile toDeleteMp3 = await saveFolder.GetFileAsync(Path.GetFileName(mp3File.Path));
+            await toDeleteVideo.DeleteAsync();
+            await toDeleteMp3.DeleteAsync();
         }
 
         public async Task<YouTubeVideo> GetVideoObject()
