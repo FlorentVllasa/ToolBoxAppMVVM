@@ -14,6 +14,8 @@ using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.Storage.Pickers;
+using VideoLibrary.Exceptions;
+using System.Net.Http;
 
 namespace ToolBoxApp.ViewModels
 {
@@ -107,33 +109,50 @@ namespace ToolBoxApp.ViewModels
                     IsDownloadButtonEnabled = false;
                 });
 
-
-                StorageFolder storageFolder = KnownFolders.MusicLibrary;
-                string savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-
-                var youTube = YouTube.Default; // starting point for YouTube actions
-                var video = await youTube.GetVideoAsync(YoutubeUrl).ConfigureAwait(false); // gets a Video object with info about the video
-                Debug.WriteLine("Video Downloaded");
-
-                string videoPath = Path.Combine(savePath, video.FullName);
-                string mp3Path = Path.Combine(savePath, videoPath.Replace(".mp4", ".mp3"));
-
-                StorageFile videoFile = await storageFolder.CreateFileAsync(Path.GetFileName(videoPath), CreationCollisionOption.ReplaceExisting);
-                StorageFile mp3File = await storageFolder.CreateFileAsync(Path.GetFileName(mp3Path), CreationCollisionOption.ReplaceExisting);
-
-                await WriteBytesIntoVideoFile(videoFile, video);
-                await ConvertMp4ToMp3(videoFile, mp3File);
-
-                await videoFile.DeleteAsync();
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                try
                 {
-                    ErrorMessage = "File has been saved in your standard music folder";
-                    ProgressBarValue = 0;
-                    IsDownloadButtonEnabled = true;
-                });
-                //https://www.youtube.com/watch?v=t1YHv1wHAxo
+                    Debug.WriteLine(YoutubeUrl);
+                    StorageFolder storageFolder = KnownFolders.MusicLibrary;
+                    string savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
 
+                    var video = await GetVideoObject().ConfigureAwait(false);
+
+                    string videoPath = Path.Combine(savePath, video.FullName);
+                    string mp3Path = Path.Combine(savePath, videoPath.Replace(".mp4", ".mp3"));
+
+                    StorageFile videoFile = await storageFolder.CreateFileAsync(Path.GetFileName(videoPath), CreationCollisionOption.ReplaceExisting);
+                    StorageFile mp3File = await storageFolder.CreateFileAsync(Path.GetFileName(mp3Path), CreationCollisionOption.ReplaceExisting);
+
+                    await WriteBytesIntoVideoFile(videoFile, video);
+                    await ConvertMp4ToMp3(videoFile, mp3File);
+
+                    await videoFile.DeleteAsync();
+
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ErrorMessage = "File has been saved in your standard music folder";
+                        ProgressBarValue = 0;
+                        IsDownloadButtonEnabled = true;
+                    });
+                    //https://www.youtube.com/watch?v=t1YHv1wHAxo
+
+                }
+                catch (UnavailableStreamException use) 
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ErrorMessage = "The youtube Url has no video!";
+                        IsDownloadButtonEnabled = true;
+                    });
+                }
+                catch(HttpRequestException hre)
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        ErrorMessage = "There seems to be an internet connection problem. Try again";
+                        IsDownloadButtonEnabled = true;
+                    });
+                }
             }
             else
             {
@@ -145,16 +164,17 @@ namespace ToolBoxApp.ViewModels
             }
         }
 
+        public async Task<YouTubeVideo> GetVideoObject()
+        {
+            var youTube = YouTube.Default;
+            var video = await youTube.GetVideoAsync(YoutubeUrl);
+            return video;
+        }
+
         public async Task WriteBytesIntoVideoFile(StorageFile videoFile, YouTubeVideo downloadedVideo)
         {
             //await FileIO.WriteBytesAsync(videoFile, downloadedVideo.GetBytes());
             //ResetProgressBar();
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                ProgressBarValue = 0;
-            });
-
 
             var outputStream = await videoFile.OpenAsync(FileAccessMode.ReadWrite);
             using (var dataWriter = new DataWriter(outputStream))
