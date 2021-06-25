@@ -44,9 +44,24 @@ namespace ToolBoxApp.ViewModels
             }
         }
 
+        private ICommand _goBackToHome;
+
+        public ICommand GoBackToHome
+        {
+            get 
+            { 
+                return _goBackToHome = new RelayCommand((a) => 
+                {
+                    _navigationService.Navigate(typeof(HomeView));
+                }); 
+            }
+        }
+
+
         public void OnItemInvoked(NavigationViewItemInvokedEventArgs args)
         {
             string invokedItemName = args.InvokedItem.ToString();
+            Debug.WriteLine(args.InvokedItem.ToString());
 
             if (invokedItemName.Equals("Text to Speech"))
             {

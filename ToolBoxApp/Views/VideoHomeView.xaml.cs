@@ -12,6 +12,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using ToolBoxApp.ViewModels;
+using ToolBoxApp.Services;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -25,7 +27,8 @@ namespace ToolBoxApp.Views
         public VideoHomeView()
         {
             this.InitializeComponent();
-
+            var viewModel = new VideoHomeViewModel(new NavigationService());
+            DataContext = viewModel;
         }
     }
 }

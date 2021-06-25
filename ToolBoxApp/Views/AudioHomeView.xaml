@@ -15,11 +15,11 @@
     <!--<Page.DataContext>
         <viewmodels:AudioHomeViewModel/>
     </Page.DataContext>-->
-    
+
     <Grid>
+
         <NavigationView x:Name="navigationViewControl" 
-                        IsBackEnabled="true"
-                        >
+                        IsBackEnabled="true">
 
             <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemInvoked">
@@ -43,5 +43,15 @@
             </ScrollViewer>
 
         </NavigationView>
+
+        <CommandBar HorizontalAlignment="Left">
+            <CommandBar.Content>
+                <Button x:Name="BackButton"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        Command="{Binding GoBackToHome}"
+                        ToolTipService.ToolTip="Back"/>
+            </CommandBar.Content>
+        </CommandBar>
+
     </Grid>
 </Page>
