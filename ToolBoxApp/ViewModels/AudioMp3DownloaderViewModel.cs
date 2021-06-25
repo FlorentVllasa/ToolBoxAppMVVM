@@ -90,6 +90,8 @@ namespace ToolBoxApp.ViewModels
             }
         }
 
+        
+
         public AudioMp3DownloaderViewModel(NavigationService navigationService)
         {
             this.navigationService = navigationService;
@@ -102,38 +104,39 @@ namespace ToolBoxApp.ViewModels
 
             if (!string.IsNullOrEmpty(YoutubeUrl) && YoutubeUrl.Contains("youtube") && YoutubeUrl.Contains("https://www.youtube".ToLower()))
             {
-
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     ErrorMessage = "";
                     IsDownloadButtonEnabled = false;
+                    Debug.WriteLine(Task.CurrentId);
                 });
 
                 try
                 {
-                    Debug.WriteLine(YoutubeUrl);
                     StorageFolder storageFolder = KnownFolders.MusicLibrary;
                     string savePath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
 
-                    var video = await GetVideoObject().ConfigureAwait(false);
-
+                    var video = await GetVideoObject();
                     string videoPath = Path.Combine(savePath, video.FullName);
                     string mp3Path = Path.Combine(savePath, videoPath.Replace(".mp4", ".mp3"));
 
                     StorageFile videoFile = await storageFolder.CreateFileAsync(Path.GetFileName(videoPath), CreationCollisionOption.ReplaceExisting);
                     StorageFile mp3File = await storageFolder.CreateFileAsync(Path.GetFileName(mp3Path), CreationCollisionOption.ReplaceExisting);
 
-                    await WriteBytesIntoVideoFile(videoFile, video);
+                    await Task.Run(() => WriteBytesIntoVideoFile(videoFile, video));
                     await ConvertMp4ToMp3(videoFile, mp3File);
 
                     await videoFile.DeleteAsync();
+ 
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "File has been saved in your standard music folder";
                         ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
+                        Debug.WriteLine(Task.CurrentId);
                     });
+                    Debug.WriteLine(Task.CurrentId);
                     //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
                 }
