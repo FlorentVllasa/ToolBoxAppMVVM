@@ -101,7 +101,11 @@ namespace ToolBoxApp.ViewModels
         {
             get 
             {
-                return _coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+                return _coreDispatcher;
+            }
+            set
+            {
+                _coreDispatcher = value;
             }
         }
 
@@ -110,6 +114,7 @@ namespace ToolBoxApp.ViewModels
         {
             this.navigationService = navigationService;
             IsDownloadButtonEnabled = true;
+            CoreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
         }
 
 
@@ -119,17 +124,17 @@ namespace ToolBoxApp.ViewModels
             if (!string.IsNullOrEmpty(YoutubeUrl) && YoutubeUrl.Contains("youtube") && YoutubeUrl.Contains("https://www.youtube".ToLower()))
             {
 
-                //await CallFunctionInsideUiThreadActionParameter(
-                //    ResetErrorMessageAndButtonVisibility,
-                //    "",
-                //    CoreDispatcher
-                //    );
+                await CallFunctionInsideUiThreadActionParameter(
+                    ResetErrorMessageAndButtonVisibility,
+                    "",
+                    CoreDispatcher
+                    );
 
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    ErrorMessage = "";
-                    IsDownloadButtonEnabled = false;
-                });
+                //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                //{
+                //    ErrorMessage = "";
+                //    IsDownloadButtonEnabled = false;
+                //});
 
                 try
                 {
@@ -150,83 +155,83 @@ namespace ToolBoxApp.ViewModels
 
                     await videoFile.DeleteAsync();
 
-                    //await CallFunctionInsideUiThreadActionParameter(
-                    //    SetErrorMessageWithUiResets, 
-                    //    "File has been saved in your standard music folder", 
-                    //    CoreDispatcher
-                    //    );
+                    await CallFunctionInsideUiThreadActionParameter(
+                        SetErrorMessageWithUiResets,
+                        "File has been saved in your standard music folder",
+                        CoreDispatcher
+                        );
                     //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = "File has been saved in your standard music folder";
-                        ProgressBarValue = 0;
-                        IsDownloadButtonEnabled = true;
-                        YoutubeUrl = "";
-                    });
+                    //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    //{
+                    //    ErrorMessage = "File has been saved in your standard music folder";
+                    //    ProgressBarValue = 0;
+                    //    IsDownloadButtonEnabled = true;
+                    //    YoutubeUrl = "";
+                    //});
 
                 }
                 catch (UnavailableStreamException) 
                 {
-                    //await CallFunctionInsideUiThreadActionParameter(
-                    //    SetErrorMessageWithUiResets, 
-                    //    "The youtube Url has no video!", 
-                    //    CoreDispatcher
-                    //    );
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = "The youtube Url has no video!";
-                        ProgressBarValue = 0;
-                        IsDownloadButtonEnabled = true;
-                    });
+                    await CallFunctionInsideUiThreadActionParameter(
+                        SetErrorMessageWithUiResets,
+                        "The youtube Url has no video!",
+                        CoreDispatcher
+                        );
+                    //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    //{
+                    //    ErrorMessage = "The youtube Url has no video!";
+                    //    ProgressBarValue = 0;
+                    //    IsDownloadButtonEnabled = true;
+                    //});
 
                 }
                 catch (HttpRequestException)
                 {
-                    //await CallFunctionInsideUiThreadActionParameter(
-                    //    SetErrorMessageWithUiResets, 
-                    //    "There seems to be an internet connection problem. Try again", 
-                    //    CoreDispatcher
-                    //    );
+                    await CallFunctionInsideUiThreadActionParameter(
+                        SetErrorMessageWithUiResets,
+                        "There seems to be an internet connection problem. Try again",
+                        CoreDispatcher
+                        );
 
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = "There seems to be an internet connection problem. Try again";
-                        ProgressBarValue = 0;
-                        IsDownloadButtonEnabled = true;
-                    });
+                    //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    //{
+                    //    ErrorMessage = "There seems to be an internet connection problem. Try again";
+                    //    ProgressBarValue = 0;
+                    //    IsDownloadButtonEnabled = true;
+                    //});
                 }
                 catch (FileLoadException)
                 {
-                    //await CallFunctionInsideUiThreadActionParameter(
-                    //    SetErrorMessageWithUiResets, 
-                    //    "File cannot be accessed. Mp3 will be deleted. Try again!", 
-                    //    CoreDispatcher
-                    //    );
+                    await CallFunctionInsideUiThreadActionParameter(
+                        SetErrorMessageWithUiResets,
+                        "File cannot be accessed. Mp3 will be deleted. Try again!",
+                        CoreDispatcher
+                        );
                     //await DeleteBrokenFiles(VideoFile, Mp3File);
 
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        ErrorMessage = "File cannot be accessed. Mp3 will be deleted. Try again!";
-                        ProgressBarValue = 0;
-                        IsDownloadButtonEnabled = true;
-                    });
+                    //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    //{
+                    //    ErrorMessage = "File cannot be accessed. Mp3 will be deleted. Try again!";
+                    //    ProgressBarValue = 0;
+                    //    IsDownloadButtonEnabled = true;
+                    //});
                 }
             }
             else
             {
-                //await CallFunctionInsideUiThreadActionParameter(
-                //    SetErrorMessageWithUiResets,
-                //    "Please insert a valid youtube link!",
-                //    CoreDispatcher
-                //    );
+                await CallFunctionInsideUiThreadActionParameter(
+                    SetErrorMessageWithUiResets,
+                    "Please insert a valid youtube link!",
+                    CoreDispatcher
+                    );
 
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    ErrorMessage = "Please insert a valid youtube link!";
-                    ProgressBarValue = 0;
-                    IsDownloadButtonEnabled = true;
-                });
+                //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                //{
+                //    ErrorMessage = "Please insert a valid youtube link!";
+                //    ProgressBarValue = 0;
+                //    IsDownloadButtonEnabled = true;
+                //});
             }
         }
 
@@ -259,16 +264,16 @@ namespace ToolBoxApp.ViewModels
                     if (i == byteArrayFourth)
                     {
 
-                        //await CallFunctionInsideUiThreadAction(
-                        //    IncrementProgressBar,
-                        //    CoreDispatcher
-                        //    );
-
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            ProgressBarValue += 25;
-                            byteArrayFourth += toAddValue;
-                        });
+                        await CallFunctionInsideUiThreadAction(
+                            IncrementProgressBar,
+                            CoreDispatcher
+                            );
+                        byteArrayFourth += toAddValue;
+                        //await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        //{
+                        //    ProgressBarValue += 25;
+                        //    byteArrayFourth += toAddValue;
+                        //});
                     }
                     dataWriter.WriteByte(videoBytes[i]);
                 }
@@ -294,6 +299,7 @@ namespace ToolBoxApp.ViewModels
             ErrorMessage = message;
             ProgressBarValue = 0;
             IsDownloadButtonEnabled = true;
+            YoutubeUrl = "";
         }
 
         public async Task CallFunctionInsideUiThreadAction(Func<Task> function, CoreDispatcher dispatcher)
