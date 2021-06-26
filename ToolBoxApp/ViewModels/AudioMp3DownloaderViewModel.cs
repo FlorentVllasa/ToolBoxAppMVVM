@@ -30,7 +30,6 @@ namespace ToolBoxApp.ViewModels
         private ICommand _downloadYoutubeMp3;
         private bool _isDownloadButtonEnabled;
 
-
         public string YoutubeUrl
         {
             get 
@@ -95,6 +94,18 @@ namespace ToolBoxApp.ViewModels
         public StorageFolder SaveFolder;
         public YouTubeVideo DownloadedVideo;
 
+
+        private CoreDispatcher _coreDispatcher;
+
+        public CoreDispatcher CoreDispatcher
+        {
+            get 
+            {
+                return _coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            }
+        }
+
+
         public AudioMp3DownloaderViewModel(NavigationService navigationService)
         {
             this.navigationService = navigationService;
@@ -107,6 +118,13 @@ namespace ToolBoxApp.ViewModels
 
             if (!string.IsNullOrEmpty(YoutubeUrl) && YoutubeUrl.Contains("youtube") && YoutubeUrl.Contains("https://www.youtube".ToLower()))
             {
+
+                //await CallFunctionInsideUiThreadActionParameter(
+                //    ResetErrorMessageAndButtonVisibility,
+                //    "",
+                //    CoreDispatcher
+                //    );
+
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     ErrorMessage = "";
@@ -131,60 +149,85 @@ namespace ToolBoxApp.ViewModels
                     await ConvertMp4ToMp3(videoFile, mp3File);
 
                     await videoFile.DeleteAsync();
- 
+
+                    //await CallFunctionInsideUiThreadActionParameter(
+                    //    SetErrorMessageWithUiResets, 
+                    //    "File has been saved in your standard music folder", 
+                    //    CoreDispatcher
+                    //    );
+                    //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "File has been saved in your standard music folder";
                         ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
+                        YoutubeUrl = "";
                     });
-                    //https://www.youtube.com/watch?v=t1YHv1wHAxo
 
                 }
                 catch (UnavailableStreamException) 
                 {
+                    //await CallFunctionInsideUiThreadActionParameter(
+                    //    SetErrorMessageWithUiResets, 
+                    //    "The youtube Url has no video!", 
+                    //    CoreDispatcher
+                    //    );
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "The youtube Url has no video!";
+                        ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
                     });
+
                 }
                 catch (HttpRequestException)
                 {
+                    //await CallFunctionInsideUiThreadActionParameter(
+                    //    SetErrorMessageWithUiResets, 
+                    //    "There seems to be an internet connection problem. Try again", 
+                    //    CoreDispatcher
+                    //    );
+
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "There seems to be an internet connection problem. Try again";
+                        ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
                     });
                 }
                 catch (FileLoadException)
                 {
+                    //await CallFunctionInsideUiThreadActionParameter(
+                    //    SetErrorMessageWithUiResets, 
+                    //    "File cannot be accessed. Mp3 will be deleted. Try again!", 
+                    //    CoreDispatcher
+                    //    );
+                    //await DeleteBrokenFiles(VideoFile, Mp3File);
+
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
                         ErrorMessage = "File cannot be accessed. Mp3 will be deleted. Try again!";
+                        ProgressBarValue = 0;
                         IsDownloadButtonEnabled = true;
                     });
-                    //await DeleteBrokenFiles(VideoFile, Mp3File);
                 }
             }
             else
             {
-                //await CallFunctionInsideUiThreadActionParameter(SetErrorMessage, "Please insert a valid youtube link!");
+                //await CallFunctionInsideUiThreadActionParameter(
+                //    SetErrorMessageWithUiResets,
+                //    "Please insert a valid youtube link!",
+                //    CoreDispatcher
+                //    );
+
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     ErrorMessage = "Please insert a valid youtube link!";
+                    ProgressBarValue = 0;
+                    IsDownloadButtonEnabled = true;
                 });
             }
-        }
-
-        public async Task DeleteBrokenFiles(StorageFile videoFile, StorageFile mp3File)
-        {
-            StorageFolder saveFolder = SaveFolder;
-            StorageFile toDeleteVideo = await saveFolder.GetFileAsync(Path.GetFileName(videoFile.Path));
-            StorageFile toDeleteMp3 = await saveFolder.GetFileAsync(Path.GetFileName(mp3File.Path));
-            await toDeleteVideo.DeleteAsync();
-            await toDeleteMp3.DeleteAsync();
         }
 
         public async Task<YouTubeVideo> GetVideoObject()
@@ -216,6 +259,11 @@ namespace ToolBoxApp.ViewModels
                     if (i == byteArrayFourth)
                     {
 
+                        //await CallFunctionInsideUiThreadAction(
+                        //    IncrementProgressBar,
+                        //    CoreDispatcher
+                        //    );
+
                         await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
                             ProgressBarValue += 25;
@@ -230,34 +278,45 @@ namespace ToolBoxApp.ViewModels
 
         }
 
-        //public async Task IncrementProgressBar()
-        //{
-        //    ProgressBarValue += 25;
-        //}
-
-        //public async Task ResetProgressBar()
-        //{
-        //    ProgressBarValue = 0;
-        //}
-
-        //public async Task SetErrorMessage(string message)
-        //{
-        //    ErrorMessage = message;
-        //}
-
-        public async Task CallFunctionInsideUiThreadAction(Func<Task> function)
+        public void IncrementProgressBar()
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            ProgressBarValue += 25;
+        }
+
+        public void ResetErrorMessageAndButtonVisibility(string message)
+        {
+            ErrorMessage = message;
+            IsDownloadButtonEnabled = false;
+        }
+
+        public void SetErrorMessageWithUiResets(string message)
+        {
+            ErrorMessage = message;
+            ProgressBarValue = 0;
+            IsDownloadButtonEnabled = true;
+        }
+
+        public async Task CallFunctionInsideUiThreadAction(Func<Task> function, CoreDispatcher dispatcher)
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 function.Invoke();
             });
         }
 
-        public async Task CallFunctionInsideUiThreadActionParameter(Action<string> function, string message)
+        public async Task CallFunctionInsideUiThreadActionParameter(Action<string> function, string message, CoreDispatcher dispatcher)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 function(message);
+            });
+        }
+
+        public async Task CallFunctionInsideUiThreadAction(Action function, CoreDispatcher dispatcher)
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                function();
             });
         }
 

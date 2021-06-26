@@ -2,6 +2,7 @@
 using ToolBoxApp.Services;
 using ToolBoxApp.ViewModels;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -16,6 +17,7 @@ namespace ToolBoxApp.Views
         public AudioMp3DownloaderView()
         {
             this.InitializeComponent();
+            this.NavigationCacheMode = NavigationCacheMode.Enabled;
             var viewModel = new AudioMp3DownloaderViewModel(new NavigationService());
             DataContext = viewModel;
         }

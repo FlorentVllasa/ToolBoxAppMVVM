@@ -29,15 +29,5 @@ namespace ToolBoxApp.Services
             var frame = (Frame)Window.Current.Content;
             frame.Navigate(sourcePage, parameter);
         }
-
-        public void NavigateScrollViewer(Type sourcePage, Type injectPage)
-        {
-            var frame = (Frame)Window.Current.Content;
-            var window = Window.Current.Content;
-            Debug.WriteLine(window.XamlRoot);
-                
-            var page = frame.CurrentSourcePageType;
-            Debug.WriteLine(page);
-        }
     }
 }

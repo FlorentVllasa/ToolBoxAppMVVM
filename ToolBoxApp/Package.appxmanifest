@@ -9,7 +9,7 @@
   <Identity
     Name="60f62ab5-0c59-4783-8ea5-7d7d8863c484"
     Publisher="CN=Florent"
-    Version="1.0.2.0" />
+    Version="1.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="60f62ab5-0c59-4783-8ea5-7d7d8863c484" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

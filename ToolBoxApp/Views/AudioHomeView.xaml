@@ -30,7 +30,7 @@
             </i:Interaction.Behaviors>
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="MusicInfo" Content="Text to Speech"/>
+                <NavigationViewItem Icon="MusicInfo" Content="Text to Speech" />
                 <NavigationViewItem Icon="MusicInfo" Content="Youtube to Mp3"/>
             </NavigationView.MenuItems>
 
