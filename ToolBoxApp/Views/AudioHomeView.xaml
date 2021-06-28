@@ -21,10 +21,17 @@
         <NavigationView x:Name="navigationViewControl" 
                         IsBackEnabled="true">
 
+
             <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemInvoked">
                     <core:EventTriggerBehavior.Actions>
                         <core:InvokeCommandAction Command="{Binding NavigateToView}" />
+                    </core:EventTriggerBehavior.Actions>
+                </core:EventTriggerBehavior>
+
+                <core:EventTriggerBehavior EventName="BackRequested">
+                    <core:EventTriggerBehavior.Actions>
+                        <core:InvokeCommandAction Command="{Binding GoBackToHome}" />
                     </core:EventTriggerBehavior.Actions>
                 </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
@@ -34,24 +41,11 @@
                 <NavigationViewItem Icon="MusicInfo" Content="Youtube to Mp3"/>
             </NavigationView.MenuItems>
 
-            <!--<ScrollViewer>
-                <Frame x:Name="ContentFrame"/>
-            </ScrollViewer>-->
-
             <ScrollViewer>
                 <Frame SourcePageType="{Binding ScrollAudioView, Mode=TwoWay}"/>
             </ScrollViewer>
 
         </NavigationView>
-
-        <CommandBar HorizontalAlignment="Left">
-            <CommandBar.Content>
-                <Button x:Name="BackButton"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        Command="{Binding GoBackToHome}"
-                        ToolTipService.ToolTip="Back"/>
-            </CommandBar.Content>
-        </CommandBar>
 
     </Grid>
 </Page>

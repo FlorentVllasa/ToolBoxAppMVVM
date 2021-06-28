@@ -5,12 +5,22 @@
     xmlns:local="using:ToolBoxApp.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
         <NavigationView x:Name="navigationViewControl" 
                         IsBackEnabled="true">
+
+            <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="BackRequested">
+                    <core:EventTriggerBehavior.Actions>
+                        <core:InvokeCommandAction Command="{Binding GoBackToHome}" />
+                    </core:EventTriggerBehavior.Actions>
+                </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
 
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Video" Content="Video Downloader"/>
@@ -22,13 +32,5 @@
 
         </NavigationView>
 
-        <CommandBar HorizontalAlignment="Left">
-            <CommandBar.Content>
-                <Button x:Name="BackButton"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        Command="{Binding GoBackToHome}"
-                        ToolTipService.ToolTip="Back"/>
-            </CommandBar.Content>
-        </CommandBar>
     </Grid>
 </Page>

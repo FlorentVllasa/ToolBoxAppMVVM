@@ -29,6 +29,7 @@ namespace ToolBoxApp.ViewModels
         private int _progressBarValue;
         private ICommand _downloadYoutubeMp3;
         private bool _isDownloadButtonEnabled;
+        private CoreDispatcher _coreDispatcher;
 
         public string YoutubeUrl
         {
@@ -95,8 +96,6 @@ namespace ToolBoxApp.ViewModels
         public YouTubeVideo DownloadedVideo;
 
 
-        private CoreDispatcher _coreDispatcher;
-
         public CoreDispatcher CoreDispatcher
         {
             get 
@@ -106,6 +105,7 @@ namespace ToolBoxApp.ViewModels
             set
             {
                 _coreDispatcher = value;
+                OnPropertyChanged("CoreDispatcher");
             }
         }
 
@@ -306,7 +306,7 @@ namespace ToolBoxApp.ViewModels
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                function.Invoke();
+                function();
             });
         }
 
