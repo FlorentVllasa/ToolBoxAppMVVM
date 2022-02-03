@@ -9,6 +9,7 @@ namespace ToolBoxApp.BaseClasses
 {
     public class MainViewModelBase : INotifyPropertyChanged
     {
+        string asdasd = "balblasd";
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
